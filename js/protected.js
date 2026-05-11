@@ -173,7 +173,7 @@ async function loadDashboard() {
     let totalStreak = 0;
     let totalBrushedToday = 0;
     let totalStickers = 0;
-    let totalLongestStreak = 0;
+    let totalWeekly = 0;
 
     for (const child of children) {
       const sessRes = await fetch(`api/sessions.php?child_id=${child.id}`, {
@@ -188,13 +188,17 @@ async function loadDashboard() {
       totalStreak += streak;
       if (brushedToday(sessions)) totalBrushedToday++;
       totalStickers += calculateStickers(streak);
-      totalLongestStreak = Math.max(totalLongestStreak, calculateLongestStreak(sessions));
+      totalWeekly += calculateWeeklyProgress(sessions);
     }
 
     document.getElementById("totalStreakDays").textContent = totalStreak;
     document.getElementById("brushedTodayCount").textContent = totalBrushedToday;
     document.getElementById("totalStickers").textContent = totalStickers;
-    document.getElementById("longestStreak").textContent = totalLongestStreak;
+    const avgPercent =
+      children.length > 0
+        ? Math.round((totalWeekly / (children.length * 14)) * 100)
+        : 0;
+    document.getElementById("weeklyAverage").textContent = avgPercent + "%";
   } catch (error) {
     console.error("Dashboard Fehler:", error);
     document.getElementById("childrenContainer").innerHTML =
