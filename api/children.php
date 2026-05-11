@@ -37,6 +37,22 @@ if ($method === 'GET') {
     $child_id = $pdo->lastInsertId();
     echo json_encode(["status" => "success", "child_id" => $child_id]);
 
+// UPDATE — Kind bearbeiten
+} elseif ($method === 'PUT') {
+    $data       = json_decode(file_get_contents("php://input"), true);
+    $child_id   = intval($data['child_id'] ?? 0);
+    $name       = trim($data['name'] ?? '');
+    $geburtstag = trim($data['geburtstag'] ?? '');
+
+    if (!$child_id || !$name || !$geburtstag) {
+        echo json_encode(["status" => "error", "message" => "Alle Felder sind erforderlich"]);
+        exit;
+    }
+
+    $stmt = $pdo->prepare("UPDATE children SET name = :name, geburtstag = :geburtstag WHERE id = :id AND user_id = :user_id");
+    $stmt->execute([':name' => $name, ':geburtstag' => $geburtstag, ':id' => $child_id, ':user_id' => $user_id]);
+    echo json_encode(["status" => "success"]);
+
 } else {
     echo json_encode(["status" => "error", "message" => "Ungültige Methode"]);
 }

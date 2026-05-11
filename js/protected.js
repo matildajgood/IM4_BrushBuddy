@@ -126,6 +126,15 @@ function renderChildCard(child, sessions) {
         <h2>${child.name}</h2>
         <p>${age} Jahre alt</p>
       </div>
+      <button class="edit-btn" onclick="openEditForm(${child.id}, '${child.name}', '${child.geburtstag}')">&#x270F;</button>
+    </div>
+    <div id="editForm-${child.id}" class="edit-form hidden">
+      <input type="text" id="editName-${child.id}" value="${child.name}" placeholder="Name" />
+      <input type="date" id="editGeburtstag-${child.id}" value="${child.geburtstag}" />
+      <div class="edit-form-buttons">
+        <button onclick="saveChild(${child.id})">Speichern</button>
+        <button class="btn-cancel" onclick="closeEditForm(${child.id})">Abbrechen</button>
+      </div>
     </div>
     <div class="brush-status ${isBrushedToday ? "status-brushed" : "status-not-brushed"}">
       <span class="status-dot"></span>
@@ -225,3 +234,25 @@ document.addEventListener("DOMContentLoaded", () => {
 
   loadDashboard();
 });
+
+function openEditForm(childId, name, geburtstag) {
+  document.getElementById(`editForm-${childId}`).classList.remove("hidden");
+}
+
+function closeEditForm(childId) {
+  document.getElementById(`editForm-${childId}`).classList.add("hidden");
+}
+
+async function saveChild(childId) {
+  const name = document.getElementById(`editName-${childId}`).value.trim();
+  const geburtstag = document.getElementById(`editGeburtstag-${childId}`).value;
+
+  const res = await fetch("api/children.php", {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    body: JSON.stringify({ child_id: childId, name, geburtstag }),
+  });
+  const data = await res.json();
+  if (data.status === "success") location.reload();
+}
