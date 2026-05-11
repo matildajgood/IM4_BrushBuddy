@@ -161,6 +161,49 @@ function renderChildCard(child, sessions) {
   return card;
 }
 
+async function loadProfile() {
+  const res = await fetch("api/profile.php", { credentials: "include" });
+  const data = await res.json();
+  if (data.status === "success") {
+    const u = data.user;
+    document.getElementById("profileName").textContent = u.vorname + " " + u.name;
+    document.getElementById("profileVorname").value = u.vorname;
+    document.getElementById("profileName2").value = u.name;
+    document.getElementById("profileEmail").value = u.email;
+  }
+}
+
+function toggleProfile() {
+  document.getElementById("profileForm").classList.toggle("hidden");
+}
+
+async function saveProfile() {
+  const vorname  = document.getElementById("profileVorname").value.trim();
+  const name     = document.getElementById("profileName2").value.trim();
+  const email    = document.getElementById("profileEmail").value.trim();
+  const password = document.getElementById("profilePassword").value;
+  const msg      = document.getElementById("profileMsg");
+
+  const res = await fetch("api/profile.php", {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    body: JSON.stringify({ vorname, name, email, password }),
+  });
+  const data = await res.json();
+
+  msg.classList.remove("hidden");
+  if (data.status === "success") {
+    msg.textContent = "Gespeichert!";
+    msg.style.color = "#166534";
+    document.getElementById("profileName").textContent = vorname + " " + name;
+    setTimeout(() => toggleProfile(), 1000);
+  } else {
+    msg.textContent = data.message;
+    msg.style.color = "#b91c1c";
+  }
+}
+
 async function loadDashboard() {
   try {
     const authRes = await fetch("api/protected.php", { credentials: "include" });
@@ -232,6 +275,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (data.status === "success") location.reload();
   });
 
+  loadProfile();
   loadDashboard();
 });
 
