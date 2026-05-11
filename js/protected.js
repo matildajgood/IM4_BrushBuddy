@@ -173,7 +173,8 @@ async function loadDashboard() {
     document.getElementById("weeklyAverage").textContent = avgPercent + "%";
   } catch (error) {
     console.error("Dashboard Fehler:", error);
-    window.location.href = "login.html";
+    document.getElementById("childrenContainer").innerHTML =
+      "<p style='color:red'>Fehler beim Laden: " + error.message + "</p>";
   }
 }
 
