@@ -2,6 +2,7 @@
 document.getElementById("loginForm").addEventListener("submit", async (e) => {
   e.preventDefault();
 
+  const email = document.getElementById("email").value.trim();
   const password = document.getElementById("password").value.trim();
   const errorEl = document.getElementById("loginError");
   errorEl.classList.add("hidden");
@@ -11,7 +12,7 @@ document.getElementById("loginForm").addEventListener("submit", async (e) => {
       method: "POST",
       credentials: "include",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ password }),
+      body: JSON.stringify({ email, password }),
     });
     const result = await response.json();
 

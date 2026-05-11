@@ -74,6 +74,7 @@ body {
   color: #6b7280;
 }
 
+.login-field input[type="email"],
 .login-field input[type="password"] {
   width: 100%;
   padding: 12px 16px;
@@ -86,6 +87,7 @@ body {
   transition: box-shadow 0.2s;
 }
 
+.login-field input[type="email"]:focus,
 .login-field input[type="password"]:focus {
   box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.2);
 }
