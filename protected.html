@@ -1,20 +1,59 @@
-<!doctype html>
-<html lang="en">
+<!DOCTYPE html>
+<html lang="de">
   <head>
     <meta charset="UTF-8" />
-    <title>Protected Page</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BrushBuddy Dashboard</title>
     <link rel="stylesheet" href="css/style.css" />
   </head>
-  <body>
-    <h1>Protected Page</h1>
+  <body class="dashboard-body">
+    <div class="dashboard">
 
-    <!-- This is where we'll dynamically show the protected content -->
-    <div id="protectedContent">
-      <h2>Welcome, <span id="userEmail"></span>!</h2>
-      <p>Your user ID is: <span id="userId"></span></p>
+      <header class="dashboard-header">
+        <div class="header-left">
+          <h1 class="dashboard-title">BrushBuddy Dashboard</h1>
+          <p id="currentDate" class="dashboard-date"></p>
+        </div>
+        <div class="header-right">
+          <span class="hub-status">&#x1F4F6; Connected to Brush Hub</span>
+          <button id="logoutBtn" class="logout-btn">Logout</button>
+        </div>
+      </header>
+
+      <div id="noChildSection" class="no-child-section hidden">
+        <h2>Noch kein Kind hinzugefügt</h2>
+        <form id="addChildForm" class="add-child-form">
+          <input type="text" id="childName" placeholder="Name des Kindes" required />
+          <input type="date" id="childGeburtstag" required />
+          <button type="submit">Kind hinzufügen</button>
+        </form>
+      </div>
+
+      <div id="childrenContainer" class="children-grid"></div>
+
+      <section class="family-overview">
+        <h2 class="overview-title">&#x1F46A; Family Overview</h2>
+        <div class="overview-stats">
+          <div class="stat-box">
+            <span class="stat-number" id="totalStreakDays">—</span>
+            <span class="stat-label">Total Streak Days</span>
+          </div>
+          <div class="stat-box stat-green">
+            <span class="stat-number" id="brushedTodayCount">—</span>
+            <span class="stat-label">Brushed Today</span>
+          </div>
+          <div class="stat-box stat-pink">
+            <span class="stat-number" id="totalStickers">—</span>
+            <span class="stat-label">Total Stickers</span>
+          </div>
+          <div class="stat-box stat-purple">
+            <span class="stat-number" id="weeklyAverage">—</span>
+            <span class="stat-label">Weekly Average</span>
+          </div>
+        </div>
+      </section>
+
     </div>
-
-    <button id="logoutBtn">Logout</button>
 
     <script src="js/protected.js"></script>
     <script src="js/logout.js"></script>
