@@ -10,28 +10,34 @@ require_once '../system/config.php';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $data = json_decode(file_get_contents("php://input"), true);
 
-    $email    = trim($data['email'] ?? '');
     $password = trim($data['password'] ?? '');
 
-    if (!$email || !$password) {
-        echo json_encode(["status" => "error", "message" => "Email and password are required"]);
+    if (!$password) {
+        echo json_encode(["status" => "error", "message" => "Password is required"]);
         exit;
     }
 
-    // Check user in DB
-    $stmt = $pdo->prepare("SELECT id, password FROM users WHERE email = :email");
-    $stmt->execute([':email' => $email]);
-    $user = $stmt->fetch(PDO::FETCH_ASSOC);
+    // Find user by password (single-parent demo app)
+    $stmt = $pdo->prepare("SELECT id, email, password FROM users");
+    $stmt->execute();
+    $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    // Verify password
-    if ($user && password_verify($password, $user['password'])) {
+    $matched = null;
+    foreach ($users as $user) {
+        if (password_verify($password, $user['password'])) {
+            $matched = $user;
+            break;
+        }
+    }
+
+    if ($matched) {
         session_regenerate_id(true);
-        $_SESSION['user_id'] = $user['id'];
-        $_SESSION['email']   = $email;
+        $_SESSION['user_id'] = $matched['id'];
+        $_SESSION['email']   = $matched['email'];
 
         echo json_encode(["status" => "success"]);
     } else {
-        echo json_encode(["status" => "error", "message" => "Invalid credentials"]);
+        echo json_encode(["status" => "error", "message" => "Invalid password"]);
     }
 } else {
     echo json_encode(["status" => "error", "message" => "Invalid request method"]);

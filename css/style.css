@@ -12,7 +12,120 @@ body {
   color: #1f2937;
 }
 
-/* Login / Register */
+/* Login page */
+.login-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #c7cff5 0%, #e8d5f0 100%);
+}
+
+.login-card {
+  background: white;
+  border-radius: 24px;
+  padding: 48px 40px 40px;
+  width: 100%;
+  max-width: 420px;
+  text-align: center;
+  box-shadow: 0 8px 40px rgba(100, 80, 200, 0.1);
+}
+
+.login-logo {
+  width: 72px;
+  height: 72px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #7c3aed, #6d28d9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 20px;
+}
+
+.login-title {
+  font-size: 26px;
+  font-weight: 700;
+  color: #1f2937;
+  margin-bottom: 4px;
+}
+
+.login-subtitle {
+  font-size: 14px;
+  color: #9ca3af;
+  margin-bottom: 32px;
+}
+
+.login-field {
+  text-align: left;
+  margin-bottom: 20px;
+}
+
+.login-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+  font-size: 14px;
+  color: #374151;
+  margin-bottom: 8px;
+}
+
+.login-label svg {
+  color: #6b7280;
+}
+
+.login-field input[type="password"] {
+  width: 100%;
+  padding: 12px 16px;
+  border: none;
+  border-radius: 12px;
+  background-color: #f3f4f6;
+  font-size: 15px;
+  color: #1f2937;
+  outline: none;
+  transition: box-shadow 0.2s;
+}
+
+.login-field input[type="password"]:focus {
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.2);
+}
+
+.login-btn {
+  width: 100%;
+  padding: 14px;
+  border-radius: 12px;
+  border: none;
+  background: linear-gradient(90deg, #7c3aed, #a855f7);
+  color: white;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s;
+  margin-top: 4px;
+}
+
+.login-btn:hover {
+  opacity: 0.9;
+  background: linear-gradient(90deg, #7c3aed, #a855f7);
+}
+
+.login-hint {
+  font-size: 12px;
+  color: #9ca3af;
+  margin-top: 20px;
+}
+
+.login-error {
+  background-color: #fee2e2;
+  color: #b91c1c;
+  font-size: 13px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  margin-bottom: 12px;
+  text-align: left;
+}
+
+/* Legacy auth layout */
 .auth-body {
   max-width: 400px;
   margin: 60px auto;
