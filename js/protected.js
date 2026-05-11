@@ -78,6 +78,34 @@ function calculateWeeklyProgress(sessions) {
   return sessions.filter((s) => s.completed == 1 && new Date(s.startTime) >= weekAgo).length;
 }
 
+function calculateLongestStreak(sessions) {
+  const completedDays = [
+    ...new Set(
+      sessions
+        .filter((s) => s.completed == 1)
+        .map((s) => getDateString(s.startTime))
+    ),
+  ].sort();
+
+  if (completedDays.length === 0) return 0;
+
+  let longest = 1;
+  let current = 1;
+
+  for (let i = 1; i < completedDays.length; i++) {
+    const prev = new Date(completedDays[i - 1]);
+    const curr = new Date(completedDays[i]);
+    const diff = (curr - prev) / 86400000;
+    if (diff === 1) {
+      current++;
+      if (current > longest) longest = current;
+    } else {
+      current = 1;
+    }
+  }
+  return longest;
+}
+
 function calculateStickers(streak) {
   return STICKER_MILESTONES.filter((m) => streak >= m).length;
 }
@@ -145,7 +173,7 @@ async function loadDashboard() {
     let totalStreak = 0;
     let totalBrushedToday = 0;
     let totalStickers = 0;
-    let totalWeekly = 0;
+    let totalLongestStreak = 0;
 
     for (const child of children) {
       const sessRes = await fetch(`api/sessions.php?child_id=${child.id}`, {
@@ -160,17 +188,13 @@ async function loadDashboard() {
       totalStreak += streak;
       if (brushedToday(sessions)) totalBrushedToday++;
       totalStickers += calculateStickers(streak);
-      totalWeekly += calculateWeeklyProgress(sessions);
+      totalLongestStreak = Math.max(totalLongestStreak, calculateLongestStreak(sessions));
     }
 
     document.getElementById("totalStreakDays").textContent = totalStreak;
     document.getElementById("brushedTodayCount").textContent = totalBrushedToday;
     document.getElementById("totalStickers").textContent = totalStickers;
-    const avgPercent =
-      children.length > 0
-        ? Math.round((totalWeekly / (children.length * 14)) * 100)
-        : 0;
-    document.getElementById("weeklyAverage").textContent = avgPercent + "%";
+    document.getElementById("longestStreak").textContent = totalLongestStreak;
   } catch (error) {
     console.error("Dashboard Fehler:", error);
     document.getElementById("childrenContainer").innerHTML =
