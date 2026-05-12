@@ -65,6 +65,19 @@
 
       <div id="childrenContainer" class="children-grid"></div>
 
+      <!-- Family Code -->
+      <section class="family-code-section">
+        <div class="family-code-left">
+          <span class="family-code-label">&#x1F46A; Dein Family-Code</span>
+          <span class="family-code-value" id="familyCodeDisplay">—</span>
+        </div>
+        <div class="family-code-right">
+          <input type="text" id="joinCodeInput" placeholder="Code eingeben…" class="family-code-input" maxlength="9" />
+          <button onclick="joinFamily()" class="family-join-btn">Beitreten</button>
+        </div>
+        <p id="familyMsg" class="family-msg hidden"></p>
+      </section>
+
       <section class="family-overview">
         <h2 class="overview-title">&#x1F46A; Family Overview</h2>
         <div class="overview-stats">

@@ -14,10 +14,21 @@ if (!isset($_SESSION['user_id'])) {
 $user_id = $_SESSION['user_id'];
 $method  = $_SERVER['REQUEST_METHOD'];
 
+// family_id des eingeloggten Users holen
+$userStmt = $pdo->prepare("SELECT family_id FROM users WHERE id = :user_id");
+$userStmt->execute([':user_id' => $user_id]);
+$currentUser = $userStmt->fetch(PDO::FETCH_ASSOC);
+$family_id = $currentUser['family_id'] ?? null;
+
 // READ — Kinder laden
 if ($method === 'GET') {
-    $stmt = $pdo->prepare("SELECT * FROM children WHERE user_id = :user_id");
-    $stmt->execute([':user_id' => $user_id]);
+    if ($family_id) {
+        $stmt = $pdo->prepare("SELECT * FROM children WHERE family_id = :family_id");
+        $stmt->execute([':family_id' => $family_id]);
+    } else {
+        $stmt = $pdo->prepare("SELECT * FROM children WHERE user_id = :user_id");
+        $stmt->execute([':user_id' => $user_id]);
+    }
     $children = $stmt->fetchAll(PDO::FETCH_ASSOC);
     echo json_encode(["status" => "success", "children" => $children]);
 
@@ -26,15 +37,14 @@ if ($method === 'GET') {
     $data       = json_decode(file_get_contents("php://input"), true);
     $name       = trim($data['name'] ?? '');
     $geburtstag = trim($data['geburtstag'] ?? '');
-    $avatar     = trim($data['avatar'] ?? '🦄');
 
     if (!$name || !$geburtstag) {
         echo json_encode(["status" => "error", "message" => "Name und Geburtstag sind erforderlich"]);
         exit;
     }
 
-    $stmt = $pdo->prepare("INSERT INTO children (user_id, name, geburtstag, avatar) VALUES (:user_id, :name, :geburtstag, :avatar)");
-    $stmt->execute([':user_id' => $user_id, ':name' => $name, ':geburtstag' => $geburtstag, ':avatar' => $avatar]);
+    $stmt = $pdo->prepare("INSERT INTO children (user_id, family_id, name, geburtstag) VALUES (:user_id, :family_id, :name, :geburtstag)");
+    $stmt->execute([':user_id' => $user_id, ':family_id' => $family_id, ':name' => $name, ':geburtstag' => $geburtstag]);
     $child_id = $pdo->lastInsertId();
     echo json_encode(["status" => "success", "child_id" => $child_id]);
 

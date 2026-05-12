@@ -271,11 +271,44 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   loadDashboard();
+  loadFamilyCode();
 
   document.addEventListener('click', () => {
     document.querySelectorAll('.avatar-picker').forEach((p) => p.classList.add('hidden'));
   });
 });
+
+async function loadFamilyCode() {
+  const res  = await fetch("api/family.php", { credentials: "include" });
+  const data = await res.json();
+  if (data.family_code) {
+    document.getElementById("familyCodeDisplay").textContent = data.family_code;
+  }
+}
+
+async function joinFamily() {
+  const code = document.getElementById("joinCodeInput").value.trim().toUpperCase();
+  const msg  = document.getElementById("familyMsg");
+  if (!code) return;
+
+  const res  = await fetch("api/family.php", {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    body: JSON.stringify({ family_code: code }),
+  });
+  const data = await res.json();
+
+  msg.classList.remove("hidden");
+  if (data.status === "success") {
+    msg.textContent = "Familie erfolgreich beigetreten!";
+    msg.style.color = "#166534";
+    setTimeout(() => location.reload(), 1200);
+  } else {
+    msg.textContent = data.message;
+    msg.style.color = "#b91c1c";
+  }
+}
 
 function toggleEditForm(childId) {
   document.getElementById(`editForm-${childId}`).classList.toggle("edit-form--open");

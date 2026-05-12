@@ -111,6 +111,23 @@ body {
   background: linear-gradient(90deg, #7c3aed, #a855f7);
 }
 
+.login-register-hint {
+  font-size: 13px;
+  color: #6b7280;
+  text-align: center;
+  margin-top: 20px;
+}
+
+.login-register-link {
+  color: #7c3aed;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.login-register-link:hover {
+  text-decoration: underline;
+}
+
 .forgot-link {
   background: none;
   border: none;
@@ -525,6 +542,86 @@ p {
   border-radius: 999px;
   background: linear-gradient(to right, #7c3aed, #ec4899);
   transition: width 0.4s ease;
+}
+
+/* Family code section */
+.family-code-section {
+  background: white;
+  border-radius: 16px;
+  padding: 20px 24px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+}
+
+.family-code-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex: 1;
+}
+
+.family-code-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #6b7280;
+  white-space: nowrap;
+}
+
+.family-code-value {
+  font-size: 20px;
+  font-weight: 700;
+  color: #7c3aed;
+  letter-spacing: 2px;
+  background: #f5f3ff;
+  padding: 6px 16px;
+  border-radius: 10px;
+}
+
+.family-code-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.family-code-input {
+  padding: 8px 14px;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 10px;
+  font-size: 14px;
+  letter-spacing: 1px;
+  width: 140px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.family-code-input:focus {
+  border-color: #7c3aed;
+}
+
+.family-join-btn {
+  padding: 8px 18px;
+  background: linear-gradient(90deg, #7c3aed, #a855f7);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.family-join-btn:hover {
+  opacity: 0.9;
+}
+
+.family-msg {
+  width: 100%;
+  font-size: 13px;
+  margin-top: 4px;
 }
 
 /* Family overview */
