@@ -11,6 +11,19 @@ CREATE TABLE IF NOT EXISTS `users` (
   UNIQUE KEY (`email`)
 );
 
+-- Children
+CREATE TABLE IF NOT EXISTS `children` (
+  `id`         INT NOT NULL AUTO_INCREMENT,
+  `user_id`    INT NOT NULL,
+  `name`       VARCHAR(100) NOT NULL,
+  `geburtstag` DATE NOT NULL,
+  `avatar`     VARCHAR(10) NOT NULL DEFAULT '🦄',
+  PRIMARY KEY (`id`)
+);
+
+-- Avatar-Spalte nachrüsten falls children-Tabelle schon existiert
+ALTER TABLE `children` ADD COLUMN IF NOT EXISTS `avatar` VARCHAR(10) NOT NULL DEFAULT '🦄';
+
 -- Password reset tokens
 CREATE TABLE IF NOT EXISTS `password_resets` (
   `user_id`    INT NOT NULL,

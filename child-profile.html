@@ -7,6 +7,48 @@
     <link rel="stylesheet" href="css/style.css" />
   </head>
   <body class="profile-body">
+
+    <nav class="page-nav">
+      <span class="page-nav-logo">BrushBuddy</span>
+      <div class="page-nav-right">
+        <button id="navLogoutBtn" class="logout-btn">Logout</button>
+        <div class="nav-profile-wrapper">
+          <button class="profile-icon-btn" onclick="toggleProfile()" title="Profil bearbeiten">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="8" r="4"/>
+              <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
+            </svg>
+          </button>
+          <div id="navProfileForm" class="profile-dropdown hidden">
+            <p class="profile-dropdown-name" id="navProfileName">...</p>
+            <div class="profile-form-grid">
+              <div>
+                <label>Vorname</label>
+                <input type="text" id="navProfileVorname" />
+              </div>
+              <div>
+                <label>Name</label>
+                <input type="text" id="navProfileName2" />
+              </div>
+              <div>
+                <label>Email</label>
+                <input type="email" id="navProfileEmail" />
+              </div>
+              <div>
+                <label>Neues Passwort (optional)</label>
+                <input type="password" id="navProfilePassword" placeholder="Leer lassen = unverändert" />
+              </div>
+            </div>
+            <div class="edit-form-buttons">
+              <button onclick="saveNavProfile()">Speichern</button>
+              <button class="btn-cancel" onclick="toggleProfile()">Abbrechen</button>
+            </div>
+            <p id="navProfileMsg" class="hidden profile-msg"></p>
+          </div>
+        </div>
+      </div>
+    </nav>
+
     <div class="profile-page">
 
       <a href="protected.html" class="back-link">&#8592; Back to Dashboard</a>
@@ -41,7 +83,7 @@
           <div class="profile-stat-body">
             <p class="profile-stat-title">Sticker Collection</p>
             <p class="profile-stat-number" id="statStickers">0</p>
-            <a href="#stickers" class="profile-stat-link">View all stickers &#x2728;</a>
+            <a href="sticker-collection.html" id="viewStickersLink" class="profile-stat-link">View all stickers &#x2728;</a>
           </div>
         </div>
         <div class="profile-stat-card">
@@ -62,7 +104,8 @@
 
     </div>
 
+    <script src="js/avatar.js"></script>
     <script src="js/child-profile.js"></script>
-    <script src="js/logout.js"></script>
+    <script src="js/nav.js"></script>
   </body>
 </html>

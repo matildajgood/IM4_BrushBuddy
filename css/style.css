@@ -386,12 +386,17 @@ p {
   height: 56px;
   border-radius: 999px;
   background-color: #f3e8ff;
-  color: #7c3aed;
-  font-size: 24px;
-  font-weight: bold;
+  font-size: 28px;
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.child-avatar:hover {
+  opacity: 0.85;
 }
 
 .child-info h2 {
@@ -569,6 +574,43 @@ p {
 }
 
 /* =====================
+   Shared Page Nav (profile & sticker pages)
+   ===================== */
+
+.page-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  padding: 12px 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 8px rgba(100, 80, 200, 0.08);
+}
+
+.page-nav-logo {
+  font-size: 18px;
+  font-weight: 700;
+  color: #7c3aed;
+}
+
+.page-nav-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.nav-profile-wrapper {
+  position: relative;
+}
+
+.nav-profile-wrapper .profile-dropdown {
+  top: 50px;
+  right: 0;
+}
+
+/* =====================
    Child Profile Page
    ===================== */
 
@@ -598,6 +640,71 @@ p {
   color: #7c3aed;
 }
 
+/* Avatar picker */
+.avatar-picker-anchor {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.profile-avatar-wrap {
+  cursor: default;
+}
+
+.avatar-edit-hint {
+  position: absolute;
+  bottom: -4px;
+  right: -4px;
+  background: #7c3aed;
+  color: white;
+  font-size: 10px;
+  width: 20px;
+  height: 20px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.avatar-picker {
+  position: absolute;
+  top: calc(100% + 10px);
+  left: 0;
+  background: white;
+  border-radius: 16px;
+  padding: 12px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.14);
+  z-index: 200;
+  width: 200px;
+}
+
+.avatar-option {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: #f3f4f6;
+  border: 2px solid transparent;
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.avatar-option:hover {
+  background: #ede9fe;
+}
+
+.avatar-option--active {
+  border-color: #7c3aed;
+  background: #ede9fe;
+}
+
 /* Profile card */
 .profile-card {
   background: white;
@@ -617,8 +724,8 @@ p {
 .profile-avatar-wrap {
   width: 72px;
   height: 72px;
-  border-radius: 16px;
-  background: linear-gradient(135deg, #c4b5fd, #a855f7);
+  border-radius: 999px;
+  background-color: #f3e8ff;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -855,6 +962,132 @@ p {
   background-color: #f5f3ff;
 }
 
+/* =====================
+   Sticker Collection Page
+   ===================== */
+
+.sticker-body {
+  background: linear-gradient(135deg, #ede9fe 0%, #fce7f3 100%);
+  min-height: 100vh;
+  padding: 24px;
+}
+
+.sticker-page {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.sticker-card {
+  background: white;
+  border-radius: 24px;
+  padding: 40px 36px 36px;
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.08);
+}
+
+.sticker-title {
+  font-size: 32px;
+  font-weight: 700;
+  color: #1f2937;
+  text-align: center;
+  margin-bottom: 8px;
+}
+
+.sticker-subtitle {
+  font-size: 15px;
+  color: #6b7280;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.sticker-counter-wrap {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 32px;
+}
+
+.sticker-counter {
+  background: #ede9fe;
+  color: #7c3aed;
+  font-size: 15px;
+  font-weight: 600;
+  padding: 8px 24px;
+  border-radius: 999px;
+}
+
+.sticker-grid {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 12px;
+  margin-bottom: 32px;
+}
+
+.sticker-tile {
+  aspect-ratio: 1;
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 6px;
+}
+
+.sticker-tile--unlocked {
+  background-color: #f3e8ff;
+}
+
+.sticker-tile--locked {
+  background-color: #f3f4f6;
+}
+
+.sticker-emoji {
+  font-size: 28px;
+  line-height: 1;
+}
+
+.sticker-lock {
+  width: 28px;
+  height: 28px;
+  color: #d1d5db;
+}
+
+.sticker-name {
+  font-size: 11px;
+  font-weight: 500;
+  color: #6b7280;
+  text-align: center;
+  line-height: 1.2;
+}
+
+.sticker-tile--unlocked .sticker-name {
+  color: #7c3aed;
+}
+
+.sticker-howto {
+  background: #fefce8;
+  border-radius: 16px;
+  padding: 24px 28px;
+}
+
+.sticker-howto-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1f2937;
+  margin-bottom: 14px;
+}
+
+.sticker-howto-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.sticker-howto-list li {
+  font-size: 15px;
+  color: #374151;
+}
+
 /* Responsive */
 @media (max-width: 600px) {
   .dashboard-body {
@@ -871,5 +1104,14 @@ p {
 
   .overview-stats {
     grid-template-columns: repeat(2, 1fr);
+  }
+
+  .sticker-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+  }
+
+  .sticker-card {
+    padding: 24px 16px 24px;
   }
 }

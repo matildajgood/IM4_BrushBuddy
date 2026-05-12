@@ -121,8 +121,12 @@ function renderChildCard(child, sessions) {
   card.className = "child-card";
   card.innerHTML = `
     <div class="child-header">
+      <div class="avatar-picker-anchor">
+        <div class="child-avatar" onclick="toggleDashboardAvatarPicker(${child.id}, event)">${getAvatar(child.id)}</div>
+        <span class="avatar-edit-hint">&#x270F;</span>
+        <div id="dashAvatarPicker-${child.id}" class="avatar-picker hidden"></div>
+      </div>
       <div class="child-header-link" onclick="window.location.href='child-profile.html?id=${child.id}'">
-        <div class="child-avatar">${child.name.charAt(0)}</div>
         <div class="child-info">
           <h2>${child.name}</h2>
           <p>${age} Jahre alt</p>
@@ -163,47 +167,36 @@ function renderChildCard(child, sessions) {
   return card;
 }
 
-async function loadProfile() {
-  const res = await fetch("api/profile.php", { credentials: "include" });
-  const data = await res.json();
-  if (data.status === "success") {
-    const u = data.user;
-    document.getElementById("profileName").textContent = u.vorname + " " + u.name;
-    document.getElementById("profileVorname").value = u.vorname;
-    document.getElementById("profileName2").value = u.name;
-    document.getElementById("profileEmail").value = u.email;
-  }
-}
+function toggleDashboardAvatarPicker(childId, event) {
+  event.stopPropagation();
+  const picker = document.getElementById('dashAvatarPicker-' + childId);
 
-function toggleProfile() {
-  document.getElementById("profileForm").classList.toggle("hidden");
-}
-
-async function saveProfile() {
-  const vorname  = document.getElementById("profileVorname").value.trim();
-  const name     = document.getElementById("profileName2").value.trim();
-  const email    = document.getElementById("profileEmail").value.trim();
-  const password = document.getElementById("profilePassword").value;
-  const msg      = document.getElementById("profileMsg");
-
-  const res = await fetch("api/profile.php", {
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    credentials: "include",
-    body: JSON.stringify({ vorname, name, email, password }),
+  // Alle anderen Picker schliessen
+  document.querySelectorAll('.avatar-picker').forEach((p) => {
+    if (p !== picker) p.classList.add('hidden');
   });
-  const data = await res.json();
 
-  msg.classList.remove("hidden");
-  if (data.status === "success") {
-    msg.textContent = "Gespeichert!";
-    msg.style.color = "#166534";
-    document.getElementById("profileName").textContent = vorname + " " + name;
-    setTimeout(() => toggleProfile(), 1000);
-  } else {
-    msg.textContent = data.message;
-    msg.style.color = "#b91c1c";
+  // Picker aufbauen beim ersten Öffnen
+  if (!picker.children.length) {
+    AVATARS.forEach((emoji) => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'avatar-option' + (emoji === getAvatar(childId) ? ' avatar-option--active' : '');
+      btn.textContent = emoji;
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        setAvatar(childId, emoji);
+        picker.parentElement.querySelector('.child-avatar').textContent = emoji;
+        picker.querySelectorAll('.avatar-option').forEach((b) => {
+          b.classList.toggle('avatar-option--active', b.textContent === emoji);
+        });
+        picker.classList.add('hidden');
+      });
+      picker.appendChild(btn);
+    });
   }
+
+  picker.classList.toggle('hidden');
 }
 
 async function loadDashboard() {
@@ -277,8 +270,11 @@ document.addEventListener("DOMContentLoaded", () => {
     if (data.status === "success") location.reload();
   });
 
-  loadProfile();
   loadDashboard();
+
+  document.addEventListener('click', () => {
+    document.querySelectorAll('.avatar-picker').forEach((p) => p.classList.add('hidden'));
+  });
 });
 
 function toggleEditForm(childId) {

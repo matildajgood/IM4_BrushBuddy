@@ -1,6 +1,5 @@
 // child-profile.js
 
-const AVATARS = ['🦄', '🐉', '🦊', '🐸', '🐼', '🦁', '🐨', '🐯'];
 const ACTIVITY_ICONS = ['⭐', '🌟', '✨', '🌠', '💫'];
 
 function getChildId() {
@@ -61,12 +60,15 @@ function getLevelInfo(stickers) {
   return { level, stickersForCurrentLevel, stickersForNextLevel };
 }
 
+let currentChildId = null;
+
 async function loadChildProfile() {
   const childId = getChildId();
   if (!childId) {
     window.location.href = 'protected.html';
     return;
   }
+  currentChildId = parseInt(childId);
 
   const authRes = await fetch('api/protected.php', { credentials: 'include' });
   if (authRes.status === 401) {
@@ -93,7 +95,7 @@ async function loadChildProfile() {
   const needed = stickersForNextLevel - stickersForCurrentLevel;
   const progressPercent = Math.min(100, (progress / needed) * 100);
 
-  const avatar = AVATARS[(child.id - 1) % AVATARS.length];
+  const avatar = getAvatar(child.id);
   document.getElementById('profileAvatar').textContent = avatar;
   document.getElementById('profileChildName').textContent = child.name;
   document.getElementById('profileLevel').textContent = `Level ${level}`;
@@ -103,6 +105,7 @@ async function loadChildProfile() {
   document.getElementById('profileProgressFill').style.width = progressPercent + '%';
   document.getElementById('statStickers').textContent = stickers;
   document.getElementById('statStreak').textContent = `${streak} days`;
+  document.getElementById('viewStickersLink').href = `sticker-collection.html?id=${childId}`;
 
   const completedSessions = sessions.filter((s) => s.completed == 1).slice(0, 10);
   const activityList = document.getElementById('activityList');

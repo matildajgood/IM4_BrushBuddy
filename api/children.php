@@ -26,14 +26,15 @@ if ($method === 'GET') {
     $data       = json_decode(file_get_contents("php://input"), true);
     $name       = trim($data['name'] ?? '');
     $geburtstag = trim($data['geburtstag'] ?? '');
+    $avatar     = trim($data['avatar'] ?? '🦄');
 
     if (!$name || !$geburtstag) {
         echo json_encode(["status" => "error", "message" => "Name und Geburtstag sind erforderlich"]);
         exit;
     }
 
-    $stmt = $pdo->prepare("INSERT INTO children (user_id, name, geburtstag) VALUES (:user_id, :name, :geburtstag)");
-    $stmt->execute([':user_id' => $user_id, ':name' => $name, ':geburtstag' => $geburtstag]);
+    $stmt = $pdo->prepare("INSERT INTO children (user_id, name, geburtstag, avatar) VALUES (:user_id, :name, :geburtstag, :avatar)");
+    $stmt->execute([':user_id' => $user_id, ':name' => $name, ':geburtstag' => $geburtstag, ':avatar' => $avatar]);
     $child_id = $pdo->lastInsertId();
     echo json_encode(["status" => "success", "child_id" => $child_id]);
 
@@ -43,14 +44,28 @@ if ($method === 'GET') {
     $child_id   = intval($data['child_id'] ?? 0);
     $name       = trim($data['name'] ?? '');
     $geburtstag = trim($data['geburtstag'] ?? '');
+    $avatar     = trim($data['avatar'] ?? '');
 
-    if (!$child_id || !$name || !$geburtstag) {
+    if (!$child_id) {
+        echo json_encode(["status" => "error", "message" => "child_id fehlt"]);
+        exit;
+    }
+
+    // Nur Avatar-Update
+    if ($avatar && !$name && !$geburtstag) {
+        $stmt = $pdo->prepare("UPDATE children SET avatar = :avatar WHERE id = :id AND user_id = :user_id");
+        $stmt->execute([':avatar' => $avatar, ':id' => $child_id, ':user_id' => $user_id]);
+        echo json_encode(["status" => "success"]);
+        exit;
+    }
+
+    if (!$name || !$geburtstag) {
         echo json_encode(["status" => "error", "message" => "Alle Felder sind erforderlich"]);
         exit;
     }
 
-    $stmt = $pdo->prepare("UPDATE children SET name = :name, geburtstag = :geburtstag WHERE id = :id AND user_id = :user_id");
-    $stmt->execute([':name' => $name, ':geburtstag' => $geburtstag, ':id' => $child_id, ':user_id' => $user_id]);
+    $stmt = $pdo->prepare("UPDATE children SET name = :name, geburtstag = :geburtstag, avatar = COALESCE(NULLIF(:avatar,''), avatar) WHERE id = :id AND user_id = :user_id");
+    $stmt->execute([':name' => $name, ':geburtstag' => $geburtstag, ':avatar' => $avatar, ':id' => $child_id, ':user_id' => $user_id]);
     echo json_encode(["status" => "success"]);
 
 } else {
