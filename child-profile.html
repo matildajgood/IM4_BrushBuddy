@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BrushBuddy – Profil</title>
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body class="profile-body">
+    <div class="profile-page">
+
+      <a href="protected.html" class="back-link">&#8592; Back to Dashboard</a>
+
+      <!-- Profile card -->
+      <div class="profile-card">
+        <div class="profile-card-header">
+          <div class="profile-avatar-wrap" id="profileAvatar">🦄</div>
+          <div class="profile-card-info">
+            <h1 class="profile-child-name" id="profileChildName">...</h1>
+            <div class="profile-badges">
+              <span class="badge badge-level" id="profileLevel">Level 1</span>
+              <span class="badge badge-streak" id="profileStreakBadge">&#x1F3C6; 0 day streak</span>
+            </div>
+          </div>
+        </div>
+        <div class="profile-progress-section">
+          <div class="profile-progress-header">
+            <span id="profileProgressLabel">Progress to Level 2</span>
+            <span id="profileProgressCount">0 / 5 stickers</span>
+          </div>
+          <div class="progress-bar profile-progress-bar">
+            <div class="progress-fill" id="profileProgressFill" style="width: 0%"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stat cards -->
+      <div class="profile-stats-grid">
+        <div class="profile-stat-card">
+          <div class="profile-stat-icon profile-stat-icon-yellow">&#x2B50;</div>
+          <div class="profile-stat-body">
+            <p class="profile-stat-title">Sticker Collection</p>
+            <p class="profile-stat-number" id="statStickers">0</p>
+            <a href="#stickers" class="profile-stat-link">View all stickers &#x2728;</a>
+          </div>
+        </div>
+        <div class="profile-stat-card">
+          <div class="profile-stat-icon profile-stat-icon-orange">&#x1F3C6;</div>
+          <div class="profile-stat-body">
+            <p class="profile-stat-title">Current Streak</p>
+            <p class="profile-stat-number" id="statStreak">0 days</p>
+            <p class="profile-stat-sub">Keep it up!</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Activity -->
+      <div class="profile-activity-card">
+        <h2 class="profile-activity-title">&#x1F4C5; Recent Activity</h2>
+        <div id="activityList" class="activity-list"></div>
+      </div>
+
+    </div>
+
+    <script src="js/child-profile.js"></script>
+    <script src="js/logout.js"></script>
+  </body>
+</html>

@@ -121,14 +121,16 @@ function renderChildCard(child, sessions) {
   card.className = "child-card";
   card.innerHTML = `
     <div class="child-header">
-      <div class="child-avatar">${child.name.charAt(0)}</div>
-      <div class="child-info">
-        <h2>${child.name}</h2>
-        <p>${age} Jahre alt</p>
+      <div class="child-header-link" onclick="window.location.href='child-profile.html?id=${child.id}'">
+        <div class="child-avatar">${child.name.charAt(0)}</div>
+        <div class="child-info">
+          <h2>${child.name}</h2>
+          <p>${age} Jahre alt</p>
+        </div>
       </div>
-      <button type="button" class="edit-btn" onclick="openEditForm(${child.id})">&#x270F;</button>
+      <button type="button" class="edit-btn" onclick="toggleEditForm(${child.id})">&#x270F;</button>
     </div>
-    <div id="editForm-${child.id}" class="edit-form" style="display:none">
+    <div id="editForm-${child.id}" class="edit-form">
       <input type="text" id="editName-${child.id}" value="${child.name}" placeholder="Name" />
       <input type="date" id="editGeburtstag-${child.id}" value="${child.geburtstag}" />
       <div class="edit-form-buttons">
@@ -279,12 +281,12 @@ document.addEventListener("DOMContentLoaded", () => {
   loadDashboard();
 });
 
-function openEditForm(childId, name, geburtstag) {
-  document.getElementById(`editForm-${childId}`).style.display = "flex";
+function toggleEditForm(childId) {
+  document.getElementById(`editForm-${childId}`).classList.toggle("edit-form--open");
 }
 
 function closeEditForm(childId) {
-  document.getElementById(`editForm-${childId}`).style.display = "none";
+  document.getElementById(`editForm-${childId}`).classList.remove("edit-form--open");
 }
 
 async function saveChild(childId) {
@@ -298,5 +300,11 @@ async function saveChild(childId) {
     body: JSON.stringify({ child_id: childId, name, geburtstag }),
   });
   const data = await res.json();
-  if (data.status === "success") location.reload();
+  if (data.status === "success") {
+    closeEditForm(childId);
+    const nameEl = document.querySelector(`#editForm-${childId}`)
+      ?.closest(".child-card")
+      ?.querySelector(".child-info h2");
+    if (nameEl) nameEl.textContent = name;
+  }
 }
