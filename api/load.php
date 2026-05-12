@@ -12,6 +12,12 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 
 $data = json_decode(file_get_contents('php://input'), true);
 
+if (!isset($data['token']) || $data['token'] !== SENSOR_TOKEN) {
+    http_response_code(401);
+    echo json_encode(['error' => 'Ungültiges Token']);
+    exit;
+}
+
 if (!$data || !isset($data['device_id'], $data['timestamp'], $data['duration'])) {
     http_response_code(400);
     echo json_encode(['error' => 'Fehlende Felder: device_id, timestamp oder duration']);
