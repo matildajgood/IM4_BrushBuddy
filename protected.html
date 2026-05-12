@@ -9,14 +9,10 @@
   <body class="dashboard-body">
     <div class="dashboard">
 
-      <header class="dashboard-header">
-        <div class="header-left">
-          <h1 class="dashboard-title">BrushBuddy Dashboard</h1>
-          <p id="currentDate" class="dashboard-date"></p>
-        </div>
-        <div class="header-right">
-          <span class="hub-status">&#x1F4F6; Connected to Brush Hub</span>
-          <button id="navLogoutBtn" class="logout-btn">Logout</button>
+      <nav class="page-nav">
+        <span class="page-nav-logo">BrushBuddy</span>
+        <div class="page-nav-right">
+          <button id="navLogoutBtn" class="logout-btn">Abmelden</button>
           <div class="nav-profile-wrapper">
             <button class="profile-icon-btn" onclick="toggleProfile()" title="Profil bearbeiten">
               <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -52,7 +48,9 @@
             </div>
           </div>
         </div>
-      </header>
+      </nav>
+
+      <p id="currentDate" class="dashboard-date"></p>
 
       <div id="noChildSection" class="no-child-section hidden">
         <h2>Noch kein Kind hinzugefügt</h2>
@@ -79,23 +77,23 @@
       </section>
 
       <section class="family-overview">
-        <h2 class="overview-title">&#x1F46A; Family Overview</h2>
+        <h2 class="overview-title">&#x1F46A; Familienübersicht</h2>
         <div class="overview-stats">
           <div class="stat-box">
             <span class="stat-number" id="totalStreakDays">—</span>
-            <span class="stat-label">Total Streak Days</span>
+            <span class="stat-label">Streak Tage gesamt</span>
           </div>
           <div class="stat-box stat-green">
             <span class="stat-number" id="brushedTodayCount">—</span>
-            <span class="stat-label">Brushed Today</span>
+            <span class="stat-label">Heute geputzt</span>
           </div>
-          <div class="stat-box stat-pink">
-            <span class="stat-number" id="totalStickers">—</span>
-            <span class="stat-label">Total Stickers</span>
+          <div class="stat-box stat-orange" id="notBrushedBox">
+            <span class="stat-number" id="notBrushedCount">—</span>
+            <span class="stat-label">Heute 2 Mal geputzt</span>
           </div>
           <div class="stat-box stat-purple">
             <span class="stat-number" id="weeklyAverage">—</span>
-            <span class="stat-label">Weekly Average</span>
+            <span class="stat-label">Wochendurchschnitt</span>
           </div>
         </div>
       </section>

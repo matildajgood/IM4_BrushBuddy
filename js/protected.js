@@ -24,34 +24,49 @@ function getDateString(datetime) {
   return (datetime || "").split("T")[0].split(" ")[0];
 }
 
+function localDateString() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
 function brushedToday(sessions) {
-  const today = new Date().toISOString().split("T")[0];
+  const today = localDateString();
   return sessions.some((s) => s.completed == 1 && s.startTime.startsWith(today));
 }
 
+function countBrushedToday(sessions) {
+  const today = localDateString();
+  return sessions.filter((s) => s.completed == 1 && s.startTime.startsWith(today)).length;
+}
+
 function calculateStreak(sessions) {
-  const completedDays = [
-    ...new Set(
-      sessions
-        .filter((s) => s.completed == 1)
-        .map((s) => getDateString(s.startTime))
-    ),
-  ]
+  const countPerDay = {};
+  sessions
+    .filter((s) => s.completed == 1)
+    .forEach((s) => {
+      const day = getDateString(s.startTime);
+      countPerDay[day] = (countPerDay[day] || 0) + 1;
+    });
+
+  const completedDays = Object.keys(countPerDay)
+    .filter((day) => countPerDay[day] >= 2)
     .sort()
     .reverse();
 
   if (completedDays.length === 0) return 0;
 
-  const today = new Date().toISOString().split("T")[0];
-  const yesterday = new Date(Date.now() - 86400000).toISOString().split("T")[0];
+  const today = localDateString();
+  const d = new Date();
+  d.setDate(d.getDate() - 1);
+  const yesterday = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 
   if (completedDays[0] !== today && completedDays[0] !== yesterday) return 0;
 
   let streak = 0;
-  const checkDate = new Date(completedDays[0]);
+  const checkDate = new Date(completedDays[0] + "T00:00:00");
 
   for (const day of completedDays) {
-    const expected = checkDate.toISOString().split("T")[0];
+    const expected = `${checkDate.getFullYear()}-${String(checkDate.getMonth() + 1).padStart(2, "0")}-${String(checkDate.getDate()).padStart(2, "0")}`;
     if (day === expected) {
       streak++;
       checkDate.setDate(checkDate.getDate() - 1);
@@ -74,8 +89,20 @@ function calculatePoints(sessions) {
 }
 
 function calculateWeeklyProgress(sessions) {
-  const weekAgo = new Date(Date.now() - 6 * 86400000);
-  return sessions.filter((s) => s.completed == 1 && new Date(s.startTime) >= weekAgo).length;
+  const now = new Date();
+  const daysSinceMonday = now.getDay() === 0 ? 6 : now.getDay() - 1;
+  const monday = new Date(now);
+  monday.setHours(0, 0, 0, 0);
+  monday.setDate(monday.getDate() - daysSinceMonday);
+
+  const countPerDay = {};
+  sessions
+    .filter((s) => s.completed == 1 && new Date(s.startTime) >= monday)
+    .forEach((s) => {
+      const day = new Date(s.startTime).toDateString();
+      countPerDay[day] = (countPerDay[day] || 0) + 1;
+    });
+  return Object.values(countPerDay).filter((count) => count >= 2).length;
 }
 
 function calculateLongestStreak(sessions) {
@@ -116,6 +143,7 @@ function renderChildCard(child, sessions) {
   const stickers = calculateStickers(streak);
   const weeklyProgress = calculateWeeklyProgress(sessions);
   const isBrushedToday = brushedToday(sessions);
+  const countToday = Math.min(countBrushedToday(sessions), 2);
 
   const card = document.createElement("div");
   card.className = "child-card";
@@ -142,25 +170,25 @@ function renderChildCard(child, sessions) {
         <button type="button" class="btn-cancel" onclick="closeEditForm(${child.id})">Abbrechen</button>
       </div>
     </div>
-    <div class="brush-status ${isBrushedToday ? "status-brushed" : "status-not-brushed"}">
+    <div class="brush-status ${countToday >= 2 ? "status-brushed" : "status-not-brushed"}">
       <span class="status-dot"></span>
-      ${isBrushedToday ? "&#x2713; Heute geputzt" : "Noch nicht geputzt"}
+      ${countToday === 0 ? "Noch nicht geputzt" : `&#x2713; ${countToday}/2 geputzt`}
     </div>
     <div class="child-stat-row">
-      <span>Current Streak</span>
+      <span>Aktueller Streak</span>
       <span>${streak} Tage &#x1F525;</span>
     </div>
     <div class="child-stat-row child-stat-pink">
-      <span>Stickers Earned</span>
+      <span>Verdiente Sticker</span>
       <span>&#x2728; ${stickers}</span>
     </div>
     <div class="progress-section">
       <div class="progress-header">
-        <span>Weekly Progress</span>
-        <span>${weeklyProgress}/14</span>
+        <span>Wochenfortschritt</span>
+        <span>${weeklyProgress}/7</span>
       </div>
       <div class="progress-bar">
-        <div class="progress-fill" style="width: ${Math.min(100, (weeklyProgress / 14) * 100)}%"></div>
+        <div class="progress-fill" style="width: ${Math.min(100, (weeklyProgress / 7) * 100)}%"></div>
       </div>
     </div>
   `;
@@ -219,8 +247,8 @@ async function loadDashboard() {
     const container = document.getElementById("childrenContainer");
     let totalStreak = 0;
     let totalBrushedToday = 0;
-    let totalStickers = 0;
     let totalWeekly = 0;
+    const notBrushed = [];
 
     for (const child of children) {
       const sessRes = await fetch(`api/sessions.php?child_id=${child.id}`, {
@@ -233,17 +261,24 @@ async function loadDashboard() {
 
       const streak = calculateStreak(sessions);
       totalStreak += streak;
-      if (brushedToday(sessions)) totalBrushedToday++;
-      totalStickers += calculateStickers(streak);
+      const todayCount = countBrushedToday(sessions);
+      if (todayCount >= 2) totalBrushedToday++;
+      else notBrushed.push(child.name);
+
       totalWeekly += calculateWeeklyProgress(sessions);
     }
 
     document.getElementById("totalStreakDays").textContent = totalStreak;
     document.getElementById("brushedTodayCount").textContent = totalBrushedToday;
-    document.getElementById("totalStickers").textContent = totalStickers;
+    const notBrushedBox = document.getElementById("notBrushedBox");
+    const brushedCount = children.length - notBrushed.length;
+    document.getElementById("notBrushedCount").textContent =
+      `${brushedCount}/${children.length}`;
+    notBrushedBox.classList.remove("stat-orange", "stat-green");
+    notBrushedBox.classList.add(brushedCount === children.length ? "stat-green" : "stat-orange");
     const avgPercent =
       children.length > 0
-        ? Math.round((totalWeekly / (children.length * 14)) * 100)
+        ? Math.round((totalWeekly / (children.length * 7)) * 100)
         : 0;
     document.getElementById("weeklyAverage").textContent = avgPercent + "%";
   } catch (error) {

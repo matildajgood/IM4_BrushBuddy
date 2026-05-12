@@ -652,15 +652,22 @@ p {
   text-align: center;
 }
 
-.stat-green { background-color: #dcfce7; }
-.stat-pink  { background-color: #fdf2f8; }
+.stat-green  { background-color: #dcfce7; }
+.stat-pink   { background-color: #fdf2f8; }
 .stat-purple { background-color: #f5f3ff; }
+.stat-orange { background-color: #fff7ed; }
 
 .stat-number {
   display: block;
   font-size: 28px;
   font-weight: bold;
   color: #1f2937;
+}
+
+.stat-number-names {
+  font-size: 15px;
+  line-height: 1.4;
+  word-break: break-word;
 }
 
 .stat-label {
@@ -1187,6 +1194,17 @@ p {
 
 /* Responsive */
 @media (max-width: 600px) {
+  .login-page {
+    align-items: flex-start;
+    padding: 24px 16px;
+  }
+
+  .login-card {
+    padding: 36px 24px 32px;
+    max-width: 100%;
+    border-radius: 20px;
+  }
+
   .dashboard-body {
     padding: 16px;
   }
