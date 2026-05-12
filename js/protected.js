@@ -126,14 +126,14 @@ function renderChildCard(child, sessions) {
         <h2>${child.name}</h2>
         <p>${age} Jahre alt</p>
       </div>
-      <button class="edit-btn" onclick="openEditForm(${child.id}, '${child.name}', '${child.geburtstag}')">&#x270F;</button>
+      <button type="button" class="edit-btn" onclick="openEditForm(${child.id})">&#x270F;</button>
     </div>
-    <div id="editForm-${child.id}" class="edit-form hidden">
+    <div id="editForm-${child.id}" class="edit-form" style="display:none">
       <input type="text" id="editName-${child.id}" value="${child.name}" placeholder="Name" />
       <input type="date" id="editGeburtstag-${child.id}" value="${child.geburtstag}" />
       <div class="edit-form-buttons">
-        <button onclick="saveChild(${child.id})">Speichern</button>
-        <button class="btn-cancel" onclick="closeEditForm(${child.id})">Abbrechen</button>
+        <button type="button" onclick="saveChild(${child.id})">Speichern</button>
+        <button type="button" class="btn-cancel" onclick="closeEditForm(${child.id})">Abbrechen</button>
       </div>
     </div>
     <div class="brush-status ${isBrushedToday ? "status-brushed" : "status-not-brushed"}">
@@ -280,11 +280,11 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 function openEditForm(childId, name, geburtstag) {
-  document.getElementById(`editForm-${childId}`).classList.remove("hidden");
+  document.getElementById(`editForm-${childId}`).style.display = "flex";
 }
 
 function closeEditForm(childId) {
-  document.getElementById(`editForm-${childId}`).classList.add("hidden");
+  document.getElementById(`editForm-${childId}`).style.display = "none";
 }
 
 async function saveChild(childId) {

@@ -49,26 +49,6 @@
         <button type="submit" class="login-btn">Login</button>
       </form>
 
-      <button type="button" class="forgot-link" id="forgotToggle">Passwort vergessen?</button>
-
-      <div id="forgotSection" class="forgot-section hidden">
-        <p class="forgot-desc">Gib deine E-Mail-Adresse ein und wir schicken dir einen Link zum Zurücksetzen deines Passworts.</p>
-        <form id="forgotForm">
-          <div class="login-field">
-            <label class="login-label">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
-                <polyline points="22,6 12,13 2,6"/>
-              </svg>
-              Deine E-Mail
-            </label>
-            <input type="email" id="resetEmail" placeholder="Enter your email" required />
-          </div>
-          <div id="forgotError" class="login-error hidden">Diese E-Mail-Adresse ist nicht registriert.</div>
-          <div id="forgotSuccess" class="login-success hidden">E-Mail gesendet! Bitte prüfe deinen Posteingang.</div>
-          <button type="submit" class="login-btn">Link senden</button>
-        </form>
-      </div>
     </div>
 
     <script src="js/login.js"></script>
