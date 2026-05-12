@@ -30,14 +30,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Hash the password
     $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
 
-    // Unique family code generieren
-    do {
-        $code = strtoupper(substr(str_shuffle('ABCDEFGHJKLMNPQRSTUVWXYZ23456789'), 0, 4))
-              . '-'
-              . strtoupper(substr(str_shuffle('ABCDEFGHJKLMNPQRSTUVWXYZ23456789'), 0, 4));
-        $check = $pdo->prepare("SELECT id FROM families WHERE family_code = :code");
-        $check->execute([':code' => $code]);
-    } while ($check->fetch());
+    $code = generateFamilyCode($pdo);
 
     $fam = $pdo->prepare("INSERT INTO families (family_code) VALUES (:code)");
     $fam->execute([':code' => $code]);

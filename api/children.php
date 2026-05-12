@@ -14,14 +14,12 @@ if (!isset($_SESSION['user_id'])) {
 $user_id = $_SESSION['user_id'];
 $method  = $_SERVER['REQUEST_METHOD'];
 
-// family_id des eingeloggten Users holen
-$userStmt = $pdo->prepare("SELECT family_id FROM users WHERE id = :user_id");
-$userStmt->execute([':user_id' => $user_id]);
-$currentUser = $userStmt->fetch(PDO::FETCH_ASSOC);
-$family_id = $currentUser['family_id'] ?? null;
-
 // READ — Kinder laden
 if ($method === 'GET') {
+    $userStmt = $pdo->prepare("SELECT family_id FROM users WHERE id = :user_id");
+    $userStmt->execute([':user_id' => $user_id]);
+    $family_id = $userStmt->fetchColumn() ?: null;
+
     if ($family_id) {
         $stmt = $pdo->prepare("SELECT * FROM children WHERE family_id = :family_id");
         $stmt->execute([':family_id' => $family_id]);
@@ -34,6 +32,10 @@ if ($method === 'GET') {
 
 // CREATE — Kind hinzufügen
 } elseif ($method === 'POST') {
+    $userStmt = $pdo->prepare("SELECT family_id FROM users WHERE id = :user_id");
+    $userStmt->execute([':user_id' => $user_id]);
+    $family_id = $userStmt->fetchColumn() ?: null;
+
     $data       = json_decode(file_get_contents("php://input"), true);
     $name       = trim($data['name'] ?? '');
     $geburtstag = trim($data['geburtstag'] ?? '');

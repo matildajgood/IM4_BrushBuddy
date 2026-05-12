@@ -38,23 +38,23 @@ function getDateString(datetime) {
 async function loadStickerCollection() {
   const childId = getChildId();
 
-  const backLink = document.getElementById('backLink');
-  if (childId) {
-    backLink.href = `child-profile.html?id=${childId}`;
-  }
-
   if (!childId) {
     window.location.href = 'protected.html';
     return;
   }
 
-  const authRes = await fetch('api/protected.php', { credentials: 'include' });
+  document.getElementById('backLink').href = `child-profile.html?id=${childId}`;
+
+  const [authRes, sessRes] = await Promise.all([
+    fetch('api/protected.php', { credentials: 'include' }),
+    fetch(`api/sessions.php?child_id=${childId}`, { credentials: 'include' }),
+  ]);
+
   if (authRes.status === 401) {
     window.location.href = 'login.html';
     return;
   }
 
-  const sessRes = await fetch(`api/sessions.php?child_id=${childId}`, { credentials: 'include' });
   const sessData = await sessRes.json();
   const sessions = sessData.sessions || [];
 

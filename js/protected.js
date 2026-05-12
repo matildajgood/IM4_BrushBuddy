@@ -299,14 +299,14 @@ async function joinFamily() {
   });
   const data = await res.json();
 
-  msg.classList.remove("hidden");
+  msg.classList.remove("hidden", "login-success", "login-error");
   if (data.status === "success") {
     msg.textContent = "Familie erfolgreich beigetreten!";
-    msg.style.color = "#166534";
+    msg.classList.add("login-success");
     setTimeout(() => location.reload(), 1200);
   } else {
     msg.textContent = data.message;
-    msg.style.color = "#b91c1c";
+    msg.classList.add("login-error");
   }
 }
 

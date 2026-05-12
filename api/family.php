@@ -14,7 +14,6 @@ if (!isset($_SESSION['user_id'])) {
 $user_id = $_SESSION['user_id'];
 $method  = $_SERVER['REQUEST_METHOD'];
 
-// GET — eigenen Family-Code zurückgeben (auto-erstellen falls noch keiner vorhanden)
 if ($method === 'GET') {
     $stmt = $pdo->prepare("
         SELECT u.family_id, f.family_code
@@ -25,21 +24,13 @@ if ($method === 'GET') {
     $stmt->execute([':user_id' => $user_id]);
     $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    // Noch keine Familie → automatisch erstellen
     if (empty($row['family_id'])) {
-        do {
-            $code = strtoupper(substr(str_shuffle('ABCDEFGHJKLMNPQRSTUVWXYZ23456789'), 0, 4))
-                  . '-'
-                  . strtoupper(substr(str_shuffle('ABCDEFGHJKLMNPQRSTUVWXYZ23456789'), 0, 4));
-            $check = $pdo->prepare("SELECT id FROM families WHERE family_code = :code");
-            $check->execute([':code' => $code]);
-        } while ($check->fetch());
+        $code = generateFamilyCode($pdo);
 
         $pdo->prepare("INSERT INTO families (family_code) VALUES (:code)")
             ->execute([':code' => $code]);
         $family_id = $pdo->lastInsertId();
 
-        // Bestehende Kinder des Users der neuen Familie zuweisen
         $pdo->prepare("UPDATE users SET family_id = :fid WHERE id = :uid")
             ->execute([':fid' => $family_id, ':uid' => $user_id]);
         $pdo->prepare("UPDATE children SET family_id = :fid WHERE user_id = :uid AND family_id IS NULL")

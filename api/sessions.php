@@ -47,9 +47,18 @@ if ($method === 'POST') {
         exit;
     }
 
-    // Prüfen ob das Kind dem eingeloggten User gehört
-    $check = $pdo->prepare("SELECT id FROM children WHERE id = :child_id AND user_id = :user_id");
-    $check->execute([':child_id' => $child_id, ':user_id' => $user_id]);
+    // Prüfen ob das Kind dem User gehört oder zur selben Familie
+    $familyStmt = $pdo->prepare("SELECT family_id FROM users WHERE id = :user_id");
+    $familyStmt->execute([':user_id' => $user_id]);
+    $family_id = $familyStmt->fetchColumn() ?: null;
+
+    if ($family_id) {
+        $check = $pdo->prepare("SELECT id FROM children WHERE id = :child_id AND family_id = :family_id");
+        $check->execute([':child_id' => $child_id, ':family_id' => $family_id]);
+    } else {
+        $check = $pdo->prepare("SELECT id FROM children WHERE id = :child_id AND user_id = :user_id");
+        $check->execute([':child_id' => $child_id, ':user_id' => $user_id]);
+    }
     if (!$check->fetch()) {
         http_response_code(403);
         echo json_encode(["status" => "error", "message" => "Kein Zugriff"]);
