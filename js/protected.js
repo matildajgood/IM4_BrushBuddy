@@ -2,6 +2,11 @@
 
 const MILESTONES = [7, 14, 21, 30, 40, 50, 60, 75, 90, 105, 120, 140, 160, 180, 200, 225, 250, 275, 300, 330, 360, 390, 420, 450];
 
+let _familyDayMap = {};
+let _familyChildCount = 0;
+let _calYear = new Date().getFullYear();
+let _calMonth = new Date().getMonth();
+
 function formatDate(date) {
   return date.toLocaleDateString("de-CH", {
     weekday: "long",
@@ -225,68 +230,65 @@ function toggleDashboardAvatarPicker(childId, event) {
   picker.classList.toggle('hidden');
 }
 
-function renderFamilyCalendar(familyDayMap, childCount) {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const todayStr = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
+function renderFamilyCalendar(familyDayMap, childCount, year, month) {
+  const todayStr = localDateString();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
 
-  const year = today.getFullYear();
-  const jan1 = new Date(year, 0, 1);
-  const jan1Dow = jan1.getDay() === 0 ? 6 : jan1.getDay() - 1;
-  const startDate = new Date(year, 0, 1 - jan1Dow);
+  const MONTH_NAMES = ["Januar","Februar","März","April","Mai","Juni","Juli","August","September","Oktober","November","Dezember"];
+  const DAY_NAMES = ["Mo","Di","Mi","Do","Fr","Sa","So"];
 
-  const dec31 = new Date(year, 11, 31);
-  const daysDiff = Math.round((dec31 - startDate) / 86400000);
-  const WEEKS = Math.ceil((daysDiff + 1) / 7);
+  const firstDow = new Date(year, month, 1).getDay();
+  const startOffset = firstDow === 0 ? 6 : firstDow - 1;
 
-  const grid = document.getElementById("familyCalendar");
-  const monthBar = document.getElementById("calMonthLabels");
-  grid.innerHTML = '';
-  monthBar.innerHTML = '';
+  let html = `
+    <div class="month-cal-nav">
+      <button class="month-cal-btn" onclick="calPrev()">&#8249;</button>
+      <span class="month-cal-title">${MONTH_NAMES[month]} ${year}</span>
+      <button class="month-cal-btn" onclick="calNext()">&#8250;</button>
+    </div>
+    <div class="month-cal-grid">`;
 
-  const MONTHS = ["Jan","Feb","Mär","Apr","Mai","Jun","Jul","Aug","Sep","Okt","Nov","Dez"];
-  let lastMonth = -1;
-  const monthPositions = [];
+  DAY_NAMES.forEach(d => { html += `<div class="month-cal-header">${d}</div>`; });
 
-  for (let w = 0; w < WEEKS; w++) {
-    const weekStart = new Date(startDate);
-    weekStart.setDate(startDate.getDate() + w * 7);
-    if (weekStart.getMonth() !== lastMonth) {
-      monthPositions.push({ week: w, label: MONTHS[weekStart.getMonth()] });
-      lastMonth = weekStart.getMonth();
-    }
-    for (let d = 0; d < 7; d++) {
-      const date = new Date(weekStart);
-      date.setDate(weekStart.getDate() + d);
-      const dateStr = `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;
-      const isFuture = date > today;
-      const status = familyDayMap[dateStr];
-
-      const cell = document.createElement("div");
-      cell.className = "cal-cell";
-      cell.title = dateStr;
-
-      if (dateStr === todayStr) {
-        cell.classList.add("cal-cell--today");
-      } else if (isFuture) {
-        cell.classList.add("cal-cell--future");
-      } else if (!status) {
-        cell.classList.add("cal-cell--miss");
-      } else if (childCount <= 1 ? status.full >= 1 : status.full >= childCount) {
-        cell.classList.add("cal-cell--full");
-      } else {
-        cell.classList.add("cal-cell--partial");
-      }
-      grid.appendChild(cell);
-    }
+  for (let i = 0; i < startOffset; i++) {
+    html += `<div class="month-cal-cell month-cal-empty"></div>`;
   }
 
-  monthPositions.forEach(({ week, label }) => {
-    const span = document.createElement("span");
-    span.textContent = label;
-    span.style.gridColumn = week + 1;
-    monthBar.appendChild(span);
-  });
+  for (let day = 1; day <= daysInMonth; day++) {
+    const dateStr = `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+    const isToday = dateStr === todayStr;
+    const isFuture = dateStr > todayStr;
+    const status = familyDayMap[dateStr];
+
+    let colorClass = "month-cal-future";
+    if (!isFuture) {
+      const allFull = childCount <= 1 ? (status && status.full >= 1) : (status && status.full >= childCount);
+      const anyBrushed = status && (status.full + status.partial) > 0;
+      if (allFull) colorClass = "month-cal-green";
+      else if (anyBrushed) colorClass = "month-cal-orange";
+      else colorClass = "month-cal-red";
+    }
+
+    html += `<div class="month-cal-cell ${colorClass}${isToday ? " month-cal-today" : ""}">
+      <span>${day}</span>
+    </div>`;
+  }
+
+  html += `</div>`;
+  const calEl = document.getElementById("familyCalendar");
+  if (calEl) calEl.innerHTML = html;
+}
+
+function calPrev() {
+  _calMonth--;
+  if (_calMonth < 0) { _calMonth = 11; _calYear--; }
+  renderFamilyCalendar(_familyDayMap, _familyChildCount, _calYear, _calMonth);
+}
+
+function calNext() {
+  _calMonth++;
+  if (_calMonth > 11) { _calMonth = 0; _calYear++; }
+  renderFamilyCalendar(_familyDayMap, _familyChildCount, _calYear, _calMonth);
 }
 
 async function loadDashboard() {
@@ -329,7 +331,9 @@ async function loadDashboard() {
       });
     }
 
-    renderFamilyCalendar(familyDayMap, children.length);
+    _familyDayMap = familyDayMap;
+    _familyChildCount = children.length;
+    renderFamilyCalendar(_familyDayMap, _familyChildCount, _calYear, _calMonth);
   } catch (error) {
     console.error("Dashboard Fehler:", error);
     document.getElementById("childrenContainer").innerHTML =
