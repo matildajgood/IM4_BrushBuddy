@@ -16,10 +16,10 @@ document.getElementById("logoutBtn").addEventListener("click", async (e) => {
       window.location.href = "login.html";
     } else {
       console.error("Logout failed");
-      alert("Logout failed. Please try again.");
+      alert("Abmelden fehlgeschlagen. Bitte erneut versuchen.");
     }
   } catch (error) {
     console.error("Logout error:", error);
-    alert("Something went wrong during logout!");
+    alert("Beim Abmelden ist ein Fehler aufgetreten!");
   }
 });

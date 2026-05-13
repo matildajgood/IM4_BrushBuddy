@@ -1,5 +1,7 @@
 // child-profile.js
 
+const MILESTONES = [7, 14, 21, 30, 40, 50, 60, 75, 90, 105, 120, 140, 160, 180, 200, 225, 250, 275, 300, 330, 360, 390, 420, 450];
+
 const ACTIVITY_ICONS = ['⭐', '🌟', '✨', '🌠', '💫'];
 
 function getChildId() {
@@ -13,8 +15,8 @@ function getDateString(datetime) {
 function formatActivityDate(dateStr) {
   const today = new Date().toISOString().split('T')[0];
   const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
-  if (dateStr === today) return 'Today';
-  if (dateStr === yesterday) return 'Yesterday';
+  if (dateStr === today) return 'Heute';
+  if (dateStr === yesterday) return 'Gestern';
   const d = new Date(dateStr + 'T00:00:00');
   return d.toLocaleDateString('de-CH', { month: 'short', day: 'numeric' });
 }
@@ -52,12 +54,24 @@ function calculateStreak(sessions) {
   return streak;
 }
 
-function getLevelInfo(stickers) {
-  const stickersPerLevel = 5;
-  const level = Math.floor(stickers / stickersPerLevel) + 1;
-  const stickersForCurrentLevel = (level - 1) * stickersPerLevel;
-  const stickersForNextLevel = level * stickersPerLevel;
-  return { level, stickersForCurrentLevel, stickersForNextLevel };
+function calculatePoints(sessions) {
+  const dayCount = {};
+  sessions.filter((s) => s.completed == 1).forEach((s) => {
+    const day = getDateString(s.startTime);
+    dayCount[day] = (dayCount[day] || 0) + 1;
+  });
+  return Object.values(dayCount).filter((count) => count >= 2).length;
+}
+
+function getLevelInfo(points) {
+  const stickers = MILESTONES.filter((m) => points >= m).length;
+  const level = stickers + 1;
+  const prevMilestone = stickers > 0 ? MILESTONES[stickers - 1] : 0;
+  const nextMilestone = stickers < MILESTONES.length ? MILESTONES[stickers] : null;
+  const progressPercent = nextMilestone
+    ? Math.min(100, ((points - prevMilestone) / (nextMilestone - prevMilestone)) * 100)
+    : 100;
+  return { stickers, level, nextMilestone, progressPercent };
 }
 
 let currentChildId = null;
@@ -88,26 +102,26 @@ async function loadChildProfile() {
   const sessData = await sessRes.json();
   const sessions = sessData.sessions || [];
 
-  const stickers = sessions.filter((s) => s.completed == 1).length;
+  const points = calculatePoints(sessions);
   const streak = calculateStreak(sessions);
-  const { level, stickersForCurrentLevel, stickersForNextLevel } = getLevelInfo(stickers);
-  const progress = stickers - stickersForCurrentLevel;
-  const needed = stickersForNextLevel - stickersForCurrentLevel;
-  const progressPercent = Math.min(100, (progress / needed) * 100);
+  const { stickers, level, nextMilestone, progressPercent } = getLevelInfo(points);
 
   const avatar = getAvatar(child.id);
   document.getElementById('profileAvatar').textContent = avatar;
   document.getElementById('profileChildName').textContent = child.name;
-  document.getElementById('profileLevel').textContent = `Level ${level}`;
-  document.getElementById('profileStreakBadge').textContent = `🏆 ${streak} day streak`;
-  document.getElementById('profileProgressLabel').textContent = `Progress to Level ${level + 1}`;
-  document.getElementById('profileProgressCount').textContent = `${stickers} / ${stickersForNextLevel} stickers`;
+  document.getElementById('profileLevel').textContent = `Level ${level} / ${MILESTONES.length + 1}`;
+  document.getElementById('profileStreakBadge').textContent = `🏆 ${streak} Tage Streak`;
+  document.getElementById('profileProgressLabel').textContent =
+    nextMilestone ? `Fortschritt zu Level ${level + 1}` : 'Maximales Level erreicht!';
+  document.getElementById('profileProgressCount').textContent =
+    nextMilestone ? `${points} / ${nextMilestone} Punkte` : `${points} Punkte`;
   document.getElementById('profileProgressFill').style.width = progressPercent + '%';
-  document.getElementById('statStickers').textContent = stickers;
-  document.getElementById('statStreak').textContent = `${streak} days`;
+  document.getElementById('statPoints').textContent = points;
+  document.getElementById('statStreak').textContent = `${streak} Tage`;
   document.getElementById('viewStickersLink').href = `sticker-collection.html?id=${childId}`;
+  document.getElementById('viewStickersLink').textContent = `Alle ${MILESTONES.length + 1} Level ansehen →`;
 
-  const completedSessions = sessions.filter((s) => s.completed == 1).slice(0, 10);
+  const completedSessions = sessions.filter((s) => s.completed == 1);
   const activityList = document.getElementById('activityList');
 
   if (completedSessions.length === 0) {
@@ -115,20 +129,45 @@ async function loadChildProfile() {
     return;
   }
 
-  completedSessions.forEach((s, i) => {
-    const dateStr = getDateString(s.startTime);
-    const item = document.createElement('div');
-    item.className = 'activity-item';
-    item.innerHTML = `
-      <div class="activity-icon-wrap">${ACTIVITY_ICONS[i % ACTIVITY_ICONS.length]}</div>
-      <div class="activity-info">
-        <p class="activity-date">${formatActivityDate(dateStr)}</p>
-        <p class="activity-time">${formatTime(s.startTime)}</p>
-      </div>
-      <span class="activity-badge">Brushed</span>
-    `;
-    activityList.appendChild(item);
-  });
+  const PAGE_SIZE = 5;
+  let shown = 0;
+
+  function renderActivities() {
+    const batch = completedSessions.slice(shown, shown + PAGE_SIZE);
+    batch.forEach((s, i) => {
+      const dateStr = getDateString(s.startTime);
+      const item = document.createElement('div');
+      item.className = 'activity-item';
+      item.innerHTML = `
+        <div class="activity-icon-wrap">${ACTIVITY_ICONS[(shown + i) % ACTIVITY_ICONS.length]}</div>
+        <div class="activity-info">
+          <p class="activity-date">${formatActivityDate(dateStr)}</p>
+          <p class="activity-time">${formatTime(s.startTime)}</p>
+        </div>
+        <span class="activity-badge">Geputzt</span>
+      `;
+      activityList.appendChild(item);
+    });
+    shown += batch.length;
+
+    const btn = document.getElementById('loadMoreBtn');
+    if (shown >= completedSessions.length) {
+      if (btn) btn.remove();
+    } else {
+      if (!btn) {
+        const more = document.createElement('button');
+        more.id = 'loadMoreBtn';
+        more.className = 'load-more-btn';
+        more.textContent = `Mehr anzeigen (${completedSessions.length - shown} weitere)`;
+        more.addEventListener('click', renderActivities);
+        activityList.after(more);
+      } else {
+        btn.textContent = `Mehr anzeigen (${completedSessions.length - shown} weitere)`;
+      }
+    }
+  }
+
+  renderActivities();
 }
 
 document.addEventListener('DOMContentLoaded', loadChildProfile);

@@ -1,6 +1,6 @@
 // protected.js — Dashboard
 
-const STICKER_MILESTONES = [7, 14, 30];
+const MILESTONES = [7, 14, 21, 30, 40, 50, 60, 75, 90, 105, 120, 140, 160, 180, 200, 225, 250, 275, 300, 330, 360, 390, 420, 450];
 
 function formatDate(date) {
   return date.toLocaleDateString("de-CH", {
@@ -79,13 +79,15 @@ function calculateStreak(sessions) {
 
 function calculatePoints(sessions) {
   const dayCount = {};
-  sessions
-    .filter((s) => s.completed == 1)
-    .forEach((s) => {
-      const day = getDateString(s.startTime);
-      dayCount[day] = (dayCount[day] || 0) + 1;
-    });
+  sessions.filter((s) => s.completed == 1).forEach((s) => {
+    const day = getDateString(s.startTime);
+    dayCount[day] = (dayCount[day] || 0) + 1;
+  });
   return Object.values(dayCount).filter((count) => count >= 2).length;
+}
+
+function calculateStickersFromPoints(points) {
+  return MILESTONES.filter((m) => points >= m).length;
 }
 
 function calculateWeeklyProgress(sessions) {
@@ -133,14 +135,10 @@ function calculateLongestStreak(sessions) {
   return longest;
 }
 
-function calculateStickers(streak) {
-  return STICKER_MILESTONES.filter((m) => streak >= m).length;
-}
-
 function renderChildCard(child, sessions) {
   const age = calculateAge(child.geburtstag);
   const streak = calculateStreak(sessions);
-  const stickers = calculateStickers(streak);
+  const points = calculatePoints(sessions);
   const weeklyProgress = calculateWeeklyProgress(sessions);
   const isBrushedToday = brushedToday(sessions);
   const countToday = Math.min(countBrushedToday(sessions), 2);
@@ -179,8 +177,8 @@ function renderChildCard(child, sessions) {
       <span>${streak} Tage &#x1F525;</span>
     </div>
     <div class="child-stat-row child-stat-pink">
-      <span>Verdiente Sticker</span>
-      <span>&#x2728; ${stickers}</span>
+      <span>Gesammelte Punkte</span>
+      <span>&#x2B50; ${points}</span>
     </div>
     <div class="progress-section">
       <div class="progress-header">
@@ -227,6 +225,70 @@ function toggleDashboardAvatarPicker(childId, event) {
   picker.classList.toggle('hidden');
 }
 
+function renderFamilyCalendar(familyDayMap, childCount) {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const todayStr = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
+
+  const year = today.getFullYear();
+  const jan1 = new Date(year, 0, 1);
+  const jan1Dow = jan1.getDay() === 0 ? 6 : jan1.getDay() - 1;
+  const startDate = new Date(year, 0, 1 - jan1Dow);
+
+  const dec31 = new Date(year, 11, 31);
+  const daysDiff = Math.round((dec31 - startDate) / 86400000);
+  const WEEKS = Math.ceil((daysDiff + 1) / 7);
+
+  const grid = document.getElementById("familyCalendar");
+  const monthBar = document.getElementById("calMonthLabels");
+  grid.innerHTML = '';
+  monthBar.innerHTML = '';
+
+  const MONTHS = ["Jan","Feb","Mär","Apr","Mai","Jun","Jul","Aug","Sep","Okt","Nov","Dez"];
+  let lastMonth = -1;
+  const monthPositions = [];
+
+  for (let w = 0; w < WEEKS; w++) {
+    const weekStart = new Date(startDate);
+    weekStart.setDate(startDate.getDate() + w * 7);
+    if (weekStart.getMonth() !== lastMonth) {
+      monthPositions.push({ week: w, label: MONTHS[weekStart.getMonth()] });
+      lastMonth = weekStart.getMonth();
+    }
+    for (let d = 0; d < 7; d++) {
+      const date = new Date(weekStart);
+      date.setDate(weekStart.getDate() + d);
+      const dateStr = `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;
+      const isFuture = date > today;
+      const status = familyDayMap[dateStr];
+
+      const cell = document.createElement("div");
+      cell.className = "cal-cell";
+      cell.title = dateStr;
+
+      if (dateStr === todayStr) {
+        cell.classList.add("cal-cell--today");
+      } else if (isFuture) {
+        cell.classList.add("cal-cell--future");
+      } else if (!status) {
+        cell.classList.add("cal-cell--miss");
+      } else if (childCount <= 1 ? status.full >= 1 : status.full >= childCount) {
+        cell.classList.add("cal-cell--full");
+      } else {
+        cell.classList.add("cal-cell--partial");
+      }
+      grid.appendChild(cell);
+    }
+  }
+
+  monthPositions.forEach(({ week, label }) => {
+    const span = document.createElement("span");
+    span.textContent = label;
+    span.style.gridColumn = week + 1;
+    monthBar.appendChild(span);
+  });
+}
+
 async function loadDashboard() {
   try {
     const authRes = await fetch("api/protected.php", { credentials: "include" });
@@ -241,14 +303,10 @@ async function loadDashboard() {
 
     if (children.length === 0) {
       document.getElementById("noChildSection").classList.remove("hidden");
-      return;
     }
 
     const container = document.getElementById("childrenContainer");
-    let totalStreak = 0;
-    let totalBrushedToday = 0;
-    let totalWeekly = 0;
-    const notBrushed = [];
+    const familyDayMap = {};
 
     for (const child of children) {
       const sessRes = await fetch(`api/sessions.php?child_id=${child.id}`, {
@@ -259,33 +317,28 @@ async function loadDashboard() {
 
       container.appendChild(renderChildCard(child, sessions));
 
-      const streak = calculateStreak(sessions);
-      totalStreak += streak;
-      const todayCount = countBrushedToday(sessions);
-      if (todayCount >= 2) totalBrushedToday++;
-      else notBrushed.push(child.name);
-
-      totalWeekly += calculateWeeklyProgress(sessions);
+      const dayCount = {};
+      sessions.filter((s) => s.completed == 1).forEach((s) => {
+        const day = getDateString(s.startTime);
+        dayCount[day] = (dayCount[day] || 0) + 1;
+      });
+      Object.entries(dayCount).forEach(([day, count]) => {
+        if (!familyDayMap[day]) familyDayMap[day] = { full: 0, partial: 0 };
+        if (count >= 2) familyDayMap[day].full++;
+        else familyDayMap[day].partial++;
+      });
     }
 
-    document.getElementById("totalStreakDays").textContent = totalStreak;
-    document.getElementById("brushedTodayCount").textContent = totalBrushedToday;
-    const notBrushedBox = document.getElementById("notBrushedBox");
-    const brushedCount = children.length - notBrushed.length;
-    document.getElementById("notBrushedCount").textContent =
-      `${brushedCount}/${children.length}`;
-    notBrushedBox.classList.remove("stat-orange", "stat-green");
-    notBrushedBox.classList.add(brushedCount === children.length ? "stat-green" : "stat-orange");
-    const avgPercent =
-      children.length > 0
-        ? Math.round((totalWeekly / (children.length * 7)) * 100)
-        : 0;
-    document.getElementById("weeklyAverage").textContent = avgPercent + "%";
+    renderFamilyCalendar(familyDayMap, children.length);
   } catch (error) {
     console.error("Dashboard Fehler:", error);
     document.getElementById("childrenContainer").innerHTML =
       "<p style='color:red'>Fehler beim Laden: " + error.message + "</p>";
   }
+}
+
+function toggleAddChildForm() {
+  document.getElementById("addChildForm").classList.toggle("hidden");
 }
 
 document.addEventListener("DOMContentLoaded", () => {

@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>BrushBuddy – Sticker Collection</title>
+    <title>BrushBuddy – Sticker-Sammlung</title>
     <link rel="stylesheet" href="css/style.css" />
   </head>
   <body class="sticker-body">
@@ -11,7 +11,7 @@
     <nav class="page-nav">
       <span class="page-nav-logo">BrushBuddy</span>
       <div class="page-nav-right">
-        <button id="navLogoutBtn" class="logout-btn">Logout</button>
+        <button id="navLogoutBtn" class="logout-btn">Abmelden</button>
         <div class="nav-profile-wrapper">
           <button class="profile-icon-btn" onclick="toggleProfile()" title="Profil bearbeiten">
             <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -51,24 +51,28 @@
 
     <div class="sticker-page">
 
-      <a id="backLink" href="child-profile.html" class="back-link">&#8592; Back to Profile</a>
+      <a id="backLink" href="child-profile.html" class="back-link">&#8592; Zurück zum Profil</a>
 
       <div class="sticker-card">
-        <h1 class="sticker-title">Sticker Collection</h1>
-        <p class="sticker-subtitle">Collect all 24 stickers by brushing every day!</p>
+        <h1 class="sticker-title">Sticker-Sammlung</h1>
+        <p class="sticker-subtitle">Sammle Punkte beim Zähneputzen und schalte Sticker frei!</p>
 
         <div class="sticker-counter-wrap">
-          <span class="sticker-counter" id="stickerCounter">Collected: 0 / 24</span>
+          <span class="sticker-counter" id="stickerCounter">0 Punkte · 0 / 24 Sticker</span>
+          <p class="sticker-next-hint" id="nextStickerHint">Noch 50 Punkte bis zum nächsten Sticker</p>
+          <div class="sticker-progress-bar">
+            <div class="sticker-progress-fill" id="nextStickerFill" style="width: 0%"></div>
+          </div>
         </div>
 
         <div class="sticker-grid" id="stickerGrid"></div>
 
         <div class="sticker-howto">
-          <h2 class="sticker-howto-title">How to Earn Stickers</h2>
+          <h2 class="sticker-howto-title">So funktioniert's</h2>
           <ul class="sticker-howto-list">
-            <li>&#x2B50; Brush twice a day to earn 2 stickers daily</li>
-            <li>&#x1F525; Maintain your streak for bonus stickers</li>
-            <li>&#x1F3C6; Complete weekly challenges for special stickers</li>
+            <li>&#x1FAA5; 2× Zähneputzen an einem Tag = 1 Punkt</li>
+            <li>&#x2B50; Punkte-Meilensteine schalten Sticker &amp; Level frei</li>
+            <li>&#x1F3C6; Erster Sticker ab 7 Punkten · 24 Sticker insgesamt</li>
           </ul>
         </div>
       </div>

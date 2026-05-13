@@ -54,14 +54,21 @@
 
       <div id="noChildSection" class="no-child-section hidden">
         <h2>Noch kein Kind hinzugefügt</h2>
-        <form id="addChildForm" class="add-child-form">
-          <input type="text" id="childName" placeholder="Name des Kindes" required />
-          <input type="date" id="childGeburtstag" required />
-          <button type="submit">Kind hinzufügen</button>
-        </form>
       </div>
 
       <div id="childrenContainer" class="children-grid"></div>
+
+      <div class="add-child-section">
+        <button type="button" class="add-child-toggle-btn" onclick="toggleAddChildForm()">+ Kind hinzufügen</button>
+        <form id="addChildForm" class="add-child-form hidden">
+          <input type="text" id="childName" placeholder="Name des Kindes" required />
+          <input type="date" id="childGeburtstag" required />
+          <div class="edit-form-buttons">
+            <button type="submit">Hinzufügen</button>
+            <button type="button" class="btn-cancel" onclick="toggleAddChildForm()">Abbrechen</button>
+          </div>
+        </form>
+      </div>
 
       <!-- Family Code -->
       <section class="family-code-section">
@@ -77,24 +84,22 @@
       </section>
 
       <section class="family-overview">
-        <h2 class="overview-title">&#x1F46A; Familienübersicht</h2>
-        <div class="overview-stats">
-          <div class="stat-box">
-            <span class="stat-number" id="totalStreakDays">—</span>
-            <span class="stat-label">Streak Tage gesamt</span>
+        <h3 class="overview-title">Familienübersicht</h3>
+        <div class="cal-wrapper">
+          <div class="cal-day-labels">
+            <span>Mo</span><span>Di</span><span>Mi</span><span>Do</span><span>Fr</span><span>Sa</span><span>So</span>
           </div>
-          <div class="stat-box stat-green">
-            <span class="stat-number" id="brushedTodayCount">—</span>
-            <span class="stat-label">Heute geputzt</span>
+          <div class="cal-grid-wrap">
+            <div class="cal-month-labels" id="calMonthLabels"></div>
+            <div class="family-calendar-grid" id="familyCalendar"></div>
           </div>
-          <div class="stat-box stat-orange" id="notBrushedBox">
-            <span class="stat-number" id="notBrushedCount">—</span>
-            <span class="stat-label">Heute 2 Mal geputzt</span>
-          </div>
-          <div class="stat-box stat-purple">
-            <span class="stat-number" id="weeklyAverage">—</span>
-            <span class="stat-label">Wochendurchschnitt</span>
-          </div>
+        </div>
+        <div class="cal-legend">
+          <span class="cal-dot" style="background:#7c3aed"></span><span>Alle 2× geputzt</span>
+          <span class="cal-dot" style="background:#c4b5fd"></span><span>Teilweise</span>
+          <span class="cal-dot" style="background:#fecaca"></span><span>Nicht geputzt</span>
+          <span class="cal-dot" style="background:#e5e7eb"></span><span>Noch ausstehend</span>
+          <span class="cal-dot" style="background:#f59e0b; box-shadow:0 0 0 1px #f59e0b"></span><span>Heute</span>
         </div>
       </section>
 

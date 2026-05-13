@@ -11,7 +11,7 @@
     <nav class="page-nav">
       <span class="page-nav-logo">BrushBuddy</span>
       <div class="page-nav-right">
-        <button id="navLogoutBtn" class="logout-btn">Logout</button>
+        <button id="navLogoutBtn" class="logout-btn">Abmelden</button>
         <div class="nav-profile-wrapper">
           <button class="profile-icon-btn" onclick="toggleProfile()" title="Profil bearbeiten">
             <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -51,7 +51,7 @@
 
     <div class="profile-page">
 
-      <a href="protected.html" class="back-link">&#8592; Back to Dashboard</a>
+      <a href="protected.html" class="back-link">&#8592; Zurück zum Dashboard</a>
 
       <!-- Profile card -->
       <div class="profile-card">
@@ -61,18 +61,19 @@
             <h1 class="profile-child-name" id="profileChildName">...</h1>
             <div class="profile-badges">
               <span class="badge badge-level" id="profileLevel">Level 1</span>
-              <span class="badge badge-streak" id="profileStreakBadge">&#x1F3C6; 0 day streak</span>
+              <span class="badge badge-streak" id="profileStreakBadge">&#x1F3C6; 0 Tage Streak</span>
             </div>
           </div>
         </div>
         <div class="profile-progress-section">
           <div class="profile-progress-header">
-            <span id="profileProgressLabel">Progress to Level 2</span>
-            <span id="profileProgressCount">0 / 5 stickers</span>
+            <span id="profileProgressLabel">Fortschritt zu Level 2</span>
+            <span id="profileProgressCount">0 / 7 Punkte</span>
           </div>
           <div class="progress-bar profile-progress-bar">
             <div class="progress-fill" id="profileProgressFill" style="width: 0%"></div>
           </div>
+          <a id="viewStickersLink" href="sticker-collection.html" class="level-overview-link">Alle 25 Level ansehen &#x2192;</a>
         </div>
       </div>
 
@@ -81,24 +82,22 @@
         <div class="profile-stat-card">
           <div class="profile-stat-icon profile-stat-icon-yellow">&#x2B50;</div>
           <div class="profile-stat-body">
-            <p class="profile-stat-title">Sticker Collection</p>
-            <p class="profile-stat-number" id="statStickers">0</p>
-            <a href="sticker-collection.html" id="viewStickersLink" class="profile-stat-link">View all stickers &#x2728;</a>
+            <p class="profile-stat-title">Meine Punkte</p>
+            <p class="profile-stat-number" id="statPoints">0</p>
           </div>
         </div>
         <div class="profile-stat-card">
           <div class="profile-stat-icon profile-stat-icon-orange">&#x1F3C6;</div>
           <div class="profile-stat-body">
-            <p class="profile-stat-title">Current Streak</p>
-            <p class="profile-stat-number" id="statStreak">0 days</p>
-            <p class="profile-stat-sub">Keep it up!</p>
+            <p class="profile-stat-title">Aktueller Streak</p>
+            <p class="profile-stat-number" id="statStreak">0 Tage</p>
           </div>
         </div>
       </div>
 
       <!-- Recent Activity -->
       <div class="profile-activity-card">
-        <h2 class="profile-activity-title">&#x1F4C5; Recent Activity</h2>
+        <h2 class="profile-activity-title">&#x1F4C5; Letzte Aktivitäten</h2>
         <div id="activityList" class="activity-list"></div>
       </div>
 
